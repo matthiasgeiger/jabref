@@ -428,9 +428,9 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
             GUIGlobals.getIconUrl("mergeentries"));
 
     private final AbstractAction dbImport = new DbImportAction(this).getAction();
-    private final AbstractAction//downloadFullText = new GeneralAction("downloadFullText", "Look up full text document",
-            //        Globals.lang("Follow DOI or URL link and try to locate PDF full text document")),
-            increaseFontSize = new IncreaseTableFontSizeAction();
+    private final AbstractAction downloadFullText = new GeneralAction("downloadFullText", "Look up full text document",
+            Localization.lang("Follow DOI or URL link and try to locate PDF full text document"));
+            private final AbstractAction increaseFontSize = new IncreaseTableFontSizeAction();
     private final AbstractAction decreseFontSize = new DecreaseTableFontSizeAction();
     private final AbstractAction resolveDuplicateKeys = new GeneralAction("resolveDuplicateKeys", "Resolve duplicate BibTeX keys",
             Localization.lang("Find and remove duplicate BibTeX keys"),
@@ -1454,7 +1454,7 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
         tools.add(makeKeyAction);
         tools.add(Cleanup);
         tools.add(mergeEntries);
-        //tools.add(downloadFullText);
+        tools.add(downloadFullText);
         tools.add(newSubDatabaseAction);
         tools.add(writeXmpAction);
         OpenOfficePanel otp = OpenOfficePanel.getInstance();

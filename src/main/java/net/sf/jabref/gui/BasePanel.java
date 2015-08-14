@@ -403,9 +403,6 @@ public class BasePanel extends JPanel implements ClipboardOwner, FileUpdateListe
             */
         });
 
-        actions.put("test",// new AccessLinksForEntries.SaveWithLinkedFiles(this));
-                new FindFullTextAction(this));
-
         // The action for saving a database.
         actions.put("save", saveAction);
 
@@ -1729,7 +1726,7 @@ public class BasePanel extends JPanel implements ClipboardOwner, FileUpdateListe
         actions.put("removeFromGroup", new GroupAddRemoveDialog(this, false, false));
         actions.put("moveToGroup", new GroupAddRemoveDialog(this, true, true));
 
-        //actions.put("downloadFullText", new FindFullTextAction(this));
+        actions.put("downloadFullText", new FindFullTextAction(this));
     }
 
     /**

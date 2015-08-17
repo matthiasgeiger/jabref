@@ -1,24 +1,22 @@
-package net.sf.jabref.logic.crawler;
+package net.sf.jabref.logic.fetcher;
 
-import net.sf.jabref.BibtexEntry;
+import net.sf.jabref.model.entry.BibtexEntry;
+import net.sf.jabref.logic.fetcher.ACS;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
-
-public class SpringerLinkTest {
-    SpringerLink finder;
+public class ACSTest {
+    ACS finder;
     BibtexEntry entry;
 
     @Before
     public void setup() {
-        finder = new SpringerLink();
+        finder = new ACS();
         entry = new BibtexEntry();
     }
 
@@ -29,17 +27,17 @@ public class SpringerLinkTest {
 
     @Test
     public void findByDOI() throws IOException {
-        entry.setField("doi", "10.1186/s13677-015-0042-8");
+        entry.setField("doi", "10.1021/bk-2006-STYG.ch014");
 
         Assert.assertEquals(
-                Optional.of(new URL("http://link.springer.com/content/pdf/10.1186/s13677-015-0042-8.pdf")),
+                Optional.of(new URL("http://pubs.acs.org/doi/pdf/10.1021/bk-2006-STYG.ch014")),
                 finder.findFullText(entry)
         );
     }
 
     @Test
     public void notFoundByDOI() throws IOException {
-        entry.setField("doi", "10.1186/unknown-doi");
+        entry.setField("doi", "10.1021/bk-2006-WWW.ch014");
 
         Assert.assertEquals(Optional.empty(), finder.findFullText(entry));
     }

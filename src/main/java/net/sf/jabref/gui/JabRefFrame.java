@@ -370,17 +370,9 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
             Localization.lang("Open URL or DOI"),
             prefs.getKey("Open URL or DOI"));
     private final AbstractAction openSpires = new GeneralAction("openSpires", "Open SPIRES entry",
-            Localization.lang("Open SPIRES entry"),
-            prefs.getKey("Open SPIRES entry"));
-    private final AbstractAction/*
-             * It looks like this wasn't being implemented for spires anyway so we
-             * comment it out for now.
-             *
-            openInspire = new GeneralAction("openInspire", "Open INSPIRE entry",
-                                                Globals.lang("Open INSPIRE entry"),
-                                                prefs.getKey("Open INSPIRE entry")),
-            */
-            dupliCheck = new GeneralAction("dupliCheck", "Find duplicates");
+                    Localization.lang("Open SPIRES entry"),
+                    prefs.getKey("Open SPIRES entry"));
+    private final AbstractAction dupliCheck = new GeneralAction("dupliCheck", "Find duplicates");
     private final AbstractAction//strictDupliCheck = new GeneralAction("strictDupliCheck", "Find and remove exact duplicates"),
             plainTextImport = new GeneralAction("plainTextImport",
             "New entry from plain text",

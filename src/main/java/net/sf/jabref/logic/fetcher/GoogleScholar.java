@@ -1,6 +1,6 @@
 package net.sf.jabref.logic.fetcher;
 
-import net.sf.jabref.BibtexEntry;
+import net.sf.jabref.model.entry.BibtexEntry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;

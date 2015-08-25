@@ -38,16 +38,18 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class Globals {
-    public static final String ENTRYTYPE_FLAG = "jabref-entrytype: ";
     private static final Log LOGGER = LogFactory.getLog(Globals.class);
+
+    public static final String ENTRYTYPE_FLAG = "jabref-entrytype: ";
 
     // JabRef version info
     public static final BuildInfo BUILD_INFO = new BuildInfo();
-
+    // Signature written at the top of the .bib file.
+    public static final String SIGNATURE = "This file was created with JabRef";
+    public static final String encPrefix = "Encoding: ";
     // Newlines
     // will be overridden in initialization due to feature #857 @ JabRef.java
-    public static String NEWLINE = System.getProperty("line.separator");
-    public static int NEWLINE_LENGTH = Globals.NEWLINE.length();
+    public static String NEWLINE = System.lineSeparator();
 
     // Remote listener
     public static RemoteListenerServerLifecycle remoteListener = new RemoteListenerServerLifecycle();
@@ -93,7 +95,6 @@ public class Globals {
     }
 
     // TODO: other stuff
-
     public static final ImportFormatReader importFormatReader = new ImportFormatReader();
 
     public static CacheableHandler handler;

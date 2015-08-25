@@ -18,7 +18,7 @@ public class BibtexEntryWriter {
     /**
      * Display name map for entry field names.
      */
-    private static final Map<String, String> tagDisplayNameMap = new HashMap<String, String>();
+    private static final Map<String, String> tagDisplayNameMap = new HashMap<>();
 
     static {
         // The field name display map.
@@ -41,14 +41,14 @@ public class BibtexEntryWriter {
         // XXX JK: Look for all used field names not only defined once, since
         //         there may be some unofficial field name used.
         int max = 0;
-        for (BibtexEntryType t : BibtexEntryType.getAllValues()) {
-            if (t.getRequiredFields() != null) {
-                for (String field : t.getRequiredFields()) {
+        for (BibtexEntryType type : BibtexEntryType.getAllValues()) {
+            if (type.getRequiredFields() != null) {
+                for (String field : type.getRequiredFields()) {
                     max = Math.max(max, field.length());
                 }
             }
-            if (t.getOptionalFields() != null) {
-                for (String field : t.getOptionalFields()) {
+            if (type.getOptionalFields() != null) {
+                for (String field : type.getOptionalFields()) {
                     max = Math.max(max, field.length());
                 }
             }
@@ -71,15 +71,15 @@ public class BibtexEntryWriter {
 
     public void write(BibtexEntry entry, Writer out) throws IOException {
         switch (writeFieldSortStyle) {
-        case 0:
-            writeNewStyle(entry, out);
-            break;
-        case 1:
-            writeOldStyle(entry, out);
-            break;
-        case 2:
-            writeUserDefinedOrder(entry, out);
-            break;
+            case 0:
+                writeRequiredFieldsFirstOptionalFieldsSecondRemainingFieldsThird(entry, out);
+                break;
+            case 1:
+                writeRequiredFieldsFirstRemainingFieldsSecond(entry, out);
+                break;
+            case 2:
+                writeUserDefinedOrder(entry, out);
+                break;
         }
     }
 
@@ -90,58 +90,55 @@ public class BibtexEntryWriter {
      * @param out
      * @throws IOException
      */
-    private void writeNewStyle(BibtexEntry entry, Writer out) throws IOException {
+    private void writeRequiredFieldsFirstOptionalFieldsSecondRemainingFieldsThird(BibtexEntry entry, Writer out) throws IOException {
         // Write header with type and bibtex-key.
         out.write('@' + entry.getType().getName() + '{');
 
-        String str = StringUtil.shaveString(entry.getField(BibtexEntry.KEY_FIELD));
-        out.write((str == null ? "" : str) + ',' + Globals.NEWLINE);
-        HashMap<String, String> written = new HashMap<String, String>();
-        written.put(BibtexEntry.KEY_FIELD, null);
+        HashSet<String> writtenFields = new HashSet<>();
+
+        writeKeyField(entry, out);
+        writtenFields.add(BibtexEntry.KEY_FIELD);
+
         // Write required fields first.
         // Thereby, write the title field first.
-        boolean hasWritten = writeField(entry, out, "title", false, false);
-        written.put("title", null);
-        String[] s = entry.getRequiredFields();
-        if (s != null) {
-            Arrays.sort(s); // Sorting in alphabetic order.
-            for (String value : s) {
-                if (!written.containsKey(value)) { // If field appears both in req. and opt. don't repeat.
-                    hasWritten = hasWritten | writeField(entry, out, value, hasWritten, false);
-                    written.put(value, null);
+        boolean hasWritten = writeField(entry, out, "title", false);
+        writtenFields.add("title");
+        String[] requiredFields = entry.getRequiredFields();
+        if (requiredFields != null) {
+            Arrays.sort(requiredFields); // Sorting in alphabetic order.
+            for (String value : requiredFields) {
+                if (!writtenFields.contains(value)) { // If field appears both in req. and opt. don't repeat.
+                    hasWritten = hasWritten | writeField(entry, out, value, hasWritten);
+                    writtenFields.add(value);
                 }
             }
         }
         // Then optional fields.
-        s = entry.getOptionalFields();
-        boolean first = true;
-        boolean previous;
-        previous = false;
-        if (s != null) {
-            Arrays.sort(s); // Sorting in alphabetic order.
-            for (String value : s) {
-                if (!written.containsKey(value)) { // If field appears both in req. and opt. don't repeat.
-                    //writeField(s[i], out, fieldFormatter);
-                    hasWritten = hasWritten | writeField(entry, out, value, hasWritten, hasWritten && first);
-                    written.put(value, null);
-                    first = false;
-                    previous = true;
+        requiredFields = entry.getOptionalFields();
+
+        if (requiredFields != null) {
+            Arrays.sort(requiredFields); // Sorting in alphabetic order.
+            for (String value : requiredFields) {
+                if (!writtenFields.contains(value)) { // If field appears both in req. and opt. don't repeat.
+                    hasWritten = hasWritten | writeField(entry, out, value, hasWritten);
+                    writtenFields.add(value);
+
                 }
             }
         }
         // Then write remaining fields in alphabetic order.
-        TreeSet<String> remainingFields = new TreeSet<String>();
+        TreeSet<String> remainingFields = new TreeSet<>();
         for (String key : entry.getAllFields()) {
             boolean writeIt = write ? BibtexFields.isWriteableField(key) :
                     BibtexFields.isDisplayableField(key);
-            if (!written.containsKey(key) && writeIt) {
+            if (!writtenFields.contains(key) && writeIt) {
                 remainingFields.add(key);
             }
         }
-        first = previous;
+
         for (String field : remainingFields) {
-            hasWritten = hasWritten | writeField(entry, out, field, hasWritten, hasWritten && first);
-            first = false;
+            hasWritten = hasWritten | writeField(entry, out, field, hasWritten);
+
         }
 
         // Finally, end the entry.
@@ -155,45 +152,44 @@ public class BibtexEntryWriter {
      * @param out
      * @throws IOException
      */
-    private void writeOldStyle(BibtexEntry entry, Writer out) throws IOException {
+    private void writeRequiredFieldsFirstRemainingFieldsSecond(BibtexEntry entry, Writer out) throws IOException {
         // Write header with type and bibtex-key.
         out.write('@' + entry.getType().getName().toUpperCase(Locale.US) + '{');
 
-        String str = StringUtil.shaveString(entry.getField(BibtexEntry.KEY_FIELD));
-        out.write((str == null ? "" : str) + ',' + Globals.NEWLINE);
-        HashMap<String, String> written = new HashMap<String, String>();
-        written.put(BibtexEntry.KEY_FIELD, null);
+        writeKeyField(entry, out);
+
+        HashSet<String> written = new HashSet<>();
+        written.add(BibtexEntry.KEY_FIELD);
         boolean hasWritten = false;
         // Write required fields first.
-        String[] s = entry.getRequiredFields();
-        if (s != null) {
-            for (String value : s) {
-                hasWritten = hasWritten | writeField(entry, out, value, hasWritten, false);
-                written.put(value, null);
+        String[] fields = entry.getRequiredFields();
+        if (fields != null) {
+            for (String value : fields) {
+                hasWritten = hasWritten | writeField(entry, out, value, hasWritten);
+                written.add(value);
             }
         }
         // Then optional fields.
-        s = entry.getOptionalFields();
-        if (s != null) {
-            for (String value : s) {
-                if (!written.containsKey(value)) { // If field appears both in req. and opt. don't repeat.
-                    //writeField(s[i], out, fieldFormatter);
-                    hasWritten = hasWritten | writeField(entry, out, value, hasWritten, false);
-                    written.put(value, null);
+        fields = entry.getOptionalFields();
+        if (fields != null) {
+            for (String value : fields) {
+                if (!written.contains(value)) { // If field appears both in req. and opt. don't repeat.
+                    hasWritten = hasWritten | writeField(entry, out, value, hasWritten);
+                    written.add(value);
                 }
             }
         }
         // Then write remaining fields in alphabetic order.
-        TreeSet<String> remainingFields = new TreeSet<String>();
+        TreeSet<String> remainingFields = new TreeSet<>();
         for (String key : entry.getAllFields()) {
             boolean writeIt = write ? BibtexFields.isWriteableField(key) :
                     BibtexFields.isDisplayableField(key);
-            if (!written.containsKey(key) && writeIt) {
+            if (!written.contains(key) && writeIt) {
                 remainingFields.add(key);
             }
         }
         for (String field : remainingFields) {
-            hasWritten = hasWritten | writeField(entry, out, field, hasWritten, false);
+            hasWritten = hasWritten | writeField(entry, out, field, hasWritten);
         }
 
         // Finally, end the entry.
@@ -204,30 +200,27 @@ public class BibtexEntryWriter {
         // Write header with type and bibtex-key.
         out.write('@' + entry.getType().getName() + '{');
 
-        String str = StringUtil.shaveString(entry.getField(BibtexEntry.KEY_FIELD));
-        out.write((str == null ? "" : str) + ',' + Globals.NEWLINE);
-        HashMap<String, String> written = new HashMap<String, String>();
+        writeKeyField(entry, out);
+        HashMap<String, String> written = new HashMap<>();
         written.put(BibtexEntry.KEY_FIELD, null);
         boolean hasWritten = false;
 
         // Write user defined fields first.
-        String[] s = entry.getUserDefinedFields();
-        if (s != null) {
+        String[] fields = entry.getUserDefinedFields();
+        if (fields != null) {
             //do not sort, write as it is.
-            for (String value : s) {
+            for (String value : fields) {
                 if (!written.containsKey(value)) { // If field appears both in req. and opt. don't repeat.
-                    hasWritten = hasWritten | writeField(entry, out, value, hasWritten, false);
+                    hasWritten = hasWritten | writeField(entry, out, value, hasWritten);
                     written.put(value, null);
                 }
             }
         }
 
         // Then write remaining fields in alphabetic order.
-        boolean first;
-        boolean previous;
-        previous = false;
+
         //STA get remaining fields
-        TreeSet<String> remainingFields = new TreeSet<String>();
+        TreeSet<String> remainingFields = new TreeSet<>();
         for (String key : entry.getAllFields()) {
             //iterate through all fields
             boolean writeIt = write ? BibtexFields.isWriteableField(key) :
@@ -239,10 +232,9 @@ public class BibtexEntryWriter {
         }
         //END get remaining fields
 
-        first = previous;
+
         for (String field : remainingFields) {
-            hasWritten = hasWritten | writeField(entry, out, field, hasWritten, hasWritten && first);
-            first = false;
+            hasWritten = hasWritten | writeField(entry, out, field, hasWritten);
         }
 
         // Finally, end the entry.
@@ -250,31 +242,34 @@ public class BibtexEntryWriter {
 
     }
 
+    private void writeKeyField(BibtexEntry entry, Writer out) throws IOException {
+        String keyField = StringUtil.shaveString(entry.getField(BibtexEntry.KEY_FIELD));
+        out.write((keyField == null ? "" : keyField) + ',' + Globals.NEWLINE);
+    }
+
     /**
      * Write a single field, if it has any content.
      *
-     * @param entry      the entry to write
-     * @param out        the target of the write
-     * @param name       The field name
-     * @param isNotFirst Indicates whether this is the first field written for
-     *                   this entry - if not, start by writing a comma and newline   @return true if this field was written, false if it was skipped because
-     *                   it was not set
+     * @param entry             the entry to write
+     * @param out               the target of the write
+     * @param name              The field name
+     * @param prependWhiteSpace Indicates whether this is the first field written for
+     *                          this entry - if not, start by writing a comma and newline   @return true if this field was written, false if it was skipped because
+     *                          it was not set
      * @throws IOException In case of an IO error
      */
-    private boolean writeField(BibtexEntry entry, Writer out, String name, boolean isNotFirst, boolean isNextGroup) throws IOException {
-        String o = entry.getField(name);
-        if (o != null || includeEmptyFields) {
-            if (isNotFirst) {
+    private boolean writeField(BibtexEntry entry, Writer out, String name, boolean prependWhiteSpace) throws IOException {
+        String field = entry.getField(name);
+        if (field != null || includeEmptyFields) {
+            if (prependWhiteSpace) {
                 out.write(',' + Globals.NEWLINE);
             }
-            if (isNextGroup) {
-                out.write(Globals.NEWLINE);
-            }
+
             out.write("  " + getFieldDisplayName(name) + " = ");
 
             try {
-                out.write(fieldFormatter.format(o, name));
-            } catch (Throwable ex) {
+                out.write(fieldFormatter.format(field, name));
+            } catch (IOException ex) {
                 throw new IOException(Localization.lang("Error in field") + " '" + name + "': " + ex.getMessage());
             }
             return true;
@@ -285,7 +280,7 @@ public class BibtexEntryWriter {
 
     /**
      * Get display version of a entry field.
-     * <p/>
+     * <p>
      * BibTeX is case-insensitive therefore there is no difference between:
      * howpublished, HOWPUBLISHED, HowPublished, etc. Since the camel case
      * version is the most easy to read this should be the one written in the
@@ -309,16 +304,16 @@ public class BibtexEntryWriter {
             }
         }
 
-        String res;
+        String result;
         if (writeFieldCameCaseName) {
             if (BibtexEntryWriter.tagDisplayNameMap.containsKey(field.toLowerCase())) {
-                res = BibtexEntryWriter.tagDisplayNameMap.get(field.toLowerCase()) + suffix;
+                result = BibtexEntryWriter.tagDisplayNameMap.get(field.toLowerCase()) + suffix;
             } else {
-                res = (field.charAt(0) + "").toUpperCase() + field.substring(1) + suffix;
+                result = (field.charAt(0) + "").toUpperCase() + field.substring(1) + suffix;
             }
         } else {
-            res = field + suffix;
+            result = field + suffix;
         }
-        return res;
+        return result;
     }
 }

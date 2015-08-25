@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 
 import net.sf.jabref.*;
 import net.sf.jabref.gui.BibtexFields;
-import net.sf.jabref.gui.GUIGlobals;
 import net.sf.jabref.logic.bibtex.BibtexEntryWriter;
 import net.sf.jabref.logic.bibtex.comparator.BibtexStringComparator;
 import net.sf.jabref.logic.bibtex.comparator.CrossRefEntryComparator;
@@ -141,20 +140,17 @@ public class FileActions {
             fw.write("{}");
         }
 
-        fw.write(" }" + Globals.NEWLINE);// + Globals.NEWLINE);
+        fw.write(" }" + Globals.NEWLINE);
     }
 
     /**
-     * Writes the JabRef signature and the encoding.
+     * Writes the file encoding information.
      *
-     * @param encoding String the name of the encoding, which is part of the
-     * header.
+     * @param encoding String the name of the encoding, which is part of the file header.
      */
     private static void writeBibFileHeader(Writer out, String encoding) throws IOException {
         out.write("% ");
-        out.write(GUIGlobals.SIGNATURE);
-        out.write(' ' + Globals.BUILD_INFO.getVersion() + '.' + Globals.NEWLINE + "% "
-                + GUIGlobals.encPrefix + encoding + Globals.NEWLINE + Globals.NEWLINE);
+        out.write(Globals.encPrefix + encoding + Globals.NEWLINE + Globals.NEWLINE);
     }
 
     /**

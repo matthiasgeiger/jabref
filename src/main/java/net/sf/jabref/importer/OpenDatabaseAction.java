@@ -32,7 +32,7 @@ import net.sf.jabref.*;
 import net.sf.jabref.exporter.AutoSaveManager;
 import net.sf.jabref.exporter.SaveSession;
 import net.sf.jabref.gui.*;
-import net.sf.jabref.external.FileLinksUpgradeWarning;
+import net.sf.jabref.migrations.FileLinksUpgradeWarning;
 import net.sf.jabref.importer.fileformat.BibtexParser;
 import net.sf.jabref.logic.l10n.Localization;
 import net.sf.jabref.model.database.BibtexDatabase;
@@ -372,10 +372,7 @@ public class OpenDatabaseAction extends MnemonicAwareAction {
             Reader utf16Reader = ImportFormatReader.getUTF16Reader(fileToOpen);
             suppliedEncoding = OpenDatabaseAction.checkForEncoding(utf16Reader);
             utf16Reader.close();
-            //System.out.println("Result of UTF-16 test: "+suppliedEncoding);
         }
-
-        //System.out.println(suppliedEncoding != null ? "Encoding: '"+suppliedEncoding+"' Len: "+suppliedEncoding.length() : "no supplied encoding");
 
         if (suppliedEncoding != null) {
             try {
@@ -425,15 +422,15 @@ public class OpenDatabaseAction extends MnemonicAwareAction {
                     offset++;
                 } else {
                     headerText.append((char) c);
-                    if (c == GUIGlobals.SIGNATURE.charAt(piv)) {
+                    if (c == Globals.SIGNATURE.charAt(piv)) {
                         piv++;
                     } else {
                         //if (((char)c) == '@')
                         keepon = false;
                     }
                 }
-                //System.out.println(headerText.toString());
-                found: if (piv == GUIGlobals.SIGNATURE.length()) {
+
+                found: if (piv == Globals.SIGNATURE.length()) {
                     keepon = false;
 
                     //if (headerText.length() > GUIGlobals.SIGNATURE.length())
@@ -449,12 +446,12 @@ public class OpenDatabaseAction extends MnemonicAwareAction {
                     }
                     // Then we must skip the "Encoding: ". We may already have read the first
                     // character:
-                    if ((char) c != GUIGlobals.encPrefix.charAt(0)) {
+                    if ((char) c != Globals.encPrefix.charAt(0)) {
                         break found;
                     }
 
-                    for (int i = 1; i < GUIGlobals.encPrefix.length(); i++) {
-                        if (reader.read() != GUIGlobals.encPrefix.charAt(i))
+                    for (int i = 1; i < Globals.encPrefix.length(); i++) {
+                        if (reader.read() != Globals.encPrefix.charAt(i))
                          {
                             break found; // No,
                         // it

@@ -268,11 +268,6 @@ public class SynchronizeFileField extends AbstractWorker {
             }
         }
 
-        //for (BibtexEntry entr : changedEntries)
-<<<<<<< .merge_file_a06136
-=======
-        //    System.out.println(entr.getCiteKey());
->>>>>>> .merge_file_a00932
         if (!changedEntries.isEmpty()) {
             // Add the undo edit:
             ce.end();

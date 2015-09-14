@@ -17,7 +17,6 @@ package net.sf.jabref.gui.help;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.net.URL;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -26,6 +25,7 @@ import javax.swing.KeyStroke;
 
 import net.sf.jabref.gui.IconTheme;
 import net.sf.jabref.gui.MnemonicAwareAction;
+import net.sf.jabref.gui.labels.MenuLabel;
 import net.sf.jabref.logic.l10n.Localization;
 
 /**
@@ -86,6 +86,19 @@ public class HelpAction extends MnemonicAwareAction {
         putValue(Action.NAME, title);
         putValue(Action.SHORT_DESCRIPTION, Localization.lang(tooltip));
         this.diag = diag;
+        this.helpFile = helpFile;
+    }
+
+    public HelpAction(MenuLabel menuLabel, HelpDialog dialog, String helpFile) {
+        putValue(Action.NAME, menuLabel.getTitleKey());
+        putValue(Action.SMALL_ICON, menuLabel.getIcon().orElse(IconTheme.getImage("help")));
+        if(menuLabel.getDescriptionKey().isPresent()) {
+            putValue(Action.SHORT_DESCRIPTION, Localization.lang(menuLabel.getDescriptionKey().get()));
+        }
+        if(menuLabel.getKeyStroke().isPresent()) {
+            putValue(Action.ACCELERATOR_KEY, menuLabel.getKeyStroke().get());
+        }
+        this.diag = dialog;
         this.helpFile = helpFile;
     }
 

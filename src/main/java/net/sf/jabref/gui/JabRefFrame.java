@@ -35,7 +35,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -78,6 +77,7 @@ import javax.swing.event.ChangeListener;
 import net.sf.jabref.*;
 import net.sf.jabref.gui.actions.*;
 import net.sf.jabref.gui.keyboard.KeyBinds;
+import net.sf.jabref.gui.labels.MenuLabel;
 import net.sf.jabref.gui.worker.AbstractWorker;
 import net.sf.jabref.gui.worker.MarkEntriesAction;
 import net.sf.jabref.gui.preftabs.PreferencesDialog;
@@ -209,15 +209,20 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
     private final AbstractAction newSubDatabaseAction = new NewSubDatabaseAction(this);
     private final AbstractAction integrityCheckAction = new IntegrityCheckAction(this);
     private final AbstractAction forkMeOnGitHubAction = new ForkMeOnGitHubAction();
-    private final AbstractAction help = new HelpAction("JabRef help", helpDiag,
-            GUIGlobals.baseFrameHelp, Localization.lang("JabRef help"),
-            prefs.getKey("Help"));
-    private final AbstractAction contents = new HelpAction("Help contents", helpDiag,
-            GUIGlobals.helpContents, Localization.lang("Help contents"),
-            IconTheme.getImage("helpContents"));
-    private final AbstractAction about = new HelpAction("About JabRef", helpDiag,
-            GUIGlobals.aboutPage, Localization.lang("About JabRef"),
-            IconTheme.getImage("about"));
+
+//    private final AbstractAction help = new HelpAction("JabRef help", helpDiag,
+//            GUIGlobals.baseFrameHelp, Localization.lang("JabRef help"),
+//            prefs.getKey("Help"));
+////    private final AbstractAction contents = new HelpAction("Help contents", helpDiag,
+//            GUIGlobals.helpContents, Localization.lang("Help contents"),
+//            IconTheme.getImage("helpContents"));
+//    private final AbstractAction about = new HelpAction("About JabRef", helpDiag,
+//            GUIGlobals.aboutPage, Localization.lang("About JabRef"),
+//            IconTheme.getImage("about"));
+    private final AbstractAction help = new HelpAction(MenuLabel.JabRef_Help, helpDiag, GUIGlobals.baseFrameHelp);
+    private final AbstractAction contents = new HelpAction(MenuLabel.Help_Contents, helpDiag, GUIGlobals.helpContents);
+    private final AbstractAction about = new HelpAction(MenuLabel.About_JabRef, helpDiag, GUIGlobals.aboutPage);
+
     private final AbstractAction editEntry = new GeneralAction(Actions.EDIT, "Edit entry",
             Localization.lang("Edit entry"),
             prefs.getKey(KeyBinds.EDIT_ENTRY),
